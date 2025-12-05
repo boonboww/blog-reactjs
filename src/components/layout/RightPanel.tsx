@@ -41,7 +41,7 @@ export function RightPanel() {
   ];
 
   return (
-    <div className="sticky top-8 pt-8">
+    <div className="sticky top-8 pt-8 ml-8">
       {/* User Profile */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">

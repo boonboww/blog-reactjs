@@ -4,11 +4,16 @@ import { Feed } from "../layout/Feed";
 import { RightPanel } from "../layout/RightPanel";
 import { DirectMessages } from "../features/messaging/DirectMessages";
 import { CreatePostModal } from "../features/posts/CreatePostModal";
+import { useSocket } from "../../hooks/useSocket";
 import type { Post, Story, Conversation } from "../../types";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<"home" | "messages">("home");
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // 🔌 Connect socket for real-time features (friend notifications, etc.)
+  const userId = localStorage.getItem("user_id") || localStorage.getItem("id");
+  useSocket(userId);
 
   const [posts, setPosts] = useState<Post[]>([
     {
@@ -196,40 +201,40 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar
-          activeView={activeView}
-          onNavigate={setActiveView}
-          onCreatePost={() => setShowCreateModal(true)}
-        />
+    <div className="min-h-screen bg-white">
+      {/* Sidebar - Fixed on desktop */}
+      <Sidebar
+        activeView={activeView}
+        onNavigate={setActiveView}
+        onCreatePost={() => setShowCreateModal(true)}
+      />
 
-        {/* Main Content */}
-        <main className="flex-1 ml-0 lg:ml-64">
-          {activeView === "home" ? (
-            <div className="flex justify-center gap-8 pt-8 px-4">
-              {/* Feed */}
-              <div className="w-full max-w-[470px]">
-                <Feed
-                  posts={posts}
-                  stories={stories}
-                  onLikePost={handleLikePost}
-                  onSavePost={handleSavePost}
-                  onAddComment={handleAddComment}
-                />
-              </div>
-
-              {/* Right Panel - Hidden on mobile */}
-              <div className="hidden xl:block w-80">
-                <RightPanel />
-              </div>
+      {/* Main Content - Offset by sidebar width on desktop */}
+      <main className="lg:ml-64 min-h-screen bg-white">
+        {activeView === "home" ? (
+          <div className="flex justify-center gap-8 pt-8 px-4 pb-20 lg:pb-8">
+            {/* Feed */}
+            <div className="w-full max-w-[470px]">
+              <Feed
+                posts={posts}
+                stories={stories}
+                onLikePost={handleLikePost}
+                onSavePost={handleSavePost}
+                onAddComment={handleAddComment}
+              />
             </div>
-          ) : (
-            <DirectMessages conversations={conversations} />
-          )}
-        </main>
-      </div>
+
+            {/* Right Panel - Hidden on smaller screens */}
+            <div className="hidden xl:block w-80 sticky top-8 h-fit">
+              <RightPanel />
+            </div>
+          </div>
+        ) : (
+          <div className="fixed inset-0 lg:left-64 bg-white">
+            <DirectMessages />
+          </div>
+        )}
+      </main>
 
       {/* Create Post Modal */}
       {showCreateModal && (

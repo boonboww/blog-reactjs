@@ -87,6 +87,18 @@ const Login: React.FC = () => {
         localStorage.setItem("access_token", res.data.access_token);
         localStorage.setItem("refresh_token", res.data.refresh_token);
 
+        // Store user data for socket connection and profile
+        if (res.data.user) {
+          localStorage.setItem("user_id", res.data.user.id?.toString() || "");
+          localStorage.setItem("user_email", res.data.user.email || "");
+          localStorage.setItem(
+            "user_name",
+            `${res.data.user.first_Name || ""} ${
+              res.data.user.last_Name || ""
+            }`.trim()
+          );
+        }
+
         // Store user role - adjust this based on your API response structure
         const userRole = res.data.user?.role || res.data.role || "user";
         console.log("Detected user role:", userRole);

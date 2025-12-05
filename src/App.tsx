@@ -18,6 +18,7 @@ import AdminRoutes from "./layouts/AdminRoutes";
 import UserRoutes from "./layouts/UserRoutes";
 import PostList from "./components/features/posts/PostList";
 import PostDetail from "./components/features/posts/PostDetail";
+import { FriendsPage } from "./pages/FriendsPage";
 
 const App: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ const App: React.FC = () => {
         <Route element={<PrivateRoutes />}>
           <Route element={<UserRoutes />}>
             <Route path="/" element={<Home />} />
+            <Route path="/friends" element={<FriendsPage />} />
           </Route>
         </Route>
 

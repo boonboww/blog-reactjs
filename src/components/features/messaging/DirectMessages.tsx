@@ -1,63 +1,28 @@
-import { useState } from "react";
-import type { Conversation, ChatMessage } from "../../../types";
-import { Send, Phone, Video, Info } from "lucide-react";
+import { useState, useEffect } from "react";
+import type { Conversation, UserEntity } from "../../../types";
+import { Send } from "lucide-react";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";
+import { useFriends } from "../../../hooks/useFriends";
+import { MessagingPanel } from "./MessagingPanel";
+import requestApi from "../../../helpers/api";
 
-interface DirectMessagesProps {
-  conversations: Conversation[];
-}
+export function DirectMessages() {
+  // Load real friends
+  const { friends, loading: loadingFriends } = useFriends();
+  const [currentUser, setCurrentUser] = useState<UserEntity | null>(null);
 
-export function DirectMessages({ conversations }: DirectMessagesProps) {
+  // Convert friends to conversations format
+  const conversations: Conversation[] = friends.map((friend) => ({
+    id: friend.id.toString(),
+    username: `${friend.first_Name} ${friend.last_Name}`,
+    userAvatar: friend.avatar || "",
+    lastMessage: "Bắt đầu cuộc trò chuyện",
+    timestamp: new Date(friend.friendsSince),
+    unread: false,
+  }));
+
   const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(conversations[0] || null);
-  const [messageText, setMessageText] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      senderId: "nguyen_vana",
-      text: "Chào bạn! Bức ảnh của bạn đẹp quá!",
-      timestamp: new Date("2024-12-03T11:00:00"),
-    },
-    {
-      id: "2",
-      senderId: "me",
-      text: "Cảm ơn bạn nhiều nhé! 😊",
-      timestamp: new Date("2024-12-03T11:15:00"),
-    },
-    {
-      id: "3",
-      senderId: "nguyen_vana",
-      text: "Bạn chụp ở đâu vậy?",
-      timestamp: new Date("2024-12-03T11:20:00"),
-    },
-    {
-      id: "4",
-      senderId: "me",
-      text: "Mình chụp ở Đà Lạt đấy",
-      timestamp: new Date("2024-12-03T11:25:00"),
-    },
-    {
-      id: "5",
-      senderId: "nguyen_vana",
-      text: "Cảm ơn bạn nhé!",
-      timestamp: new Date("2024-12-03T11:30:00"),
-    },
-  ]);
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageText.trim()) return;
-
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      senderId: "me",
-      text: messageText,
-      timestamp: new Date(),
-    };
-
-    setMessages([...messages, newMessage]);
-    setMessageText("");
-  };
+    useState<Conversation | null>(null);
 
   const formatTime = (date: Date) => {
     return new Intl.DateTimeFormat("vi-VN", {
@@ -66,140 +31,127 @@ export function DirectMessages({ conversations }: DirectMessagesProps) {
     }).format(date);
   };
 
+  const currentUserId = localStorage.getItem("user_id") || "";
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (!currentUserId) return;
+      try {
+        const response = await requestApi(`/users/${currentUserId}`, "GET", []);
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch current user", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [currentUserId]);
+
+  const currentUserName = currentUser
+    ? `${currentUser.first_Name} ${currentUser.last_Name}`
+    : "Người dùng";
+
   return (
-    <div className="h-screen flex lg:ml-0">
-      {/* Conversations List */}
-      <div className="w-full lg:w-96 border-r bg-white flex flex-col">
-        <div className="p-4 border-b">
-          <h2 className="text-xl">Tin nhắn</h2>
+    <div className="flex h-full bg-white">
+      {/* Conversations List - Hidden on mobile if chat is open */}
+      <div
+        className={`w-full lg:w-[350px] border-r border-gray-200 flex flex-col bg-white ${
+          selectedConversation ? "hidden lg:flex" : "flex"
+        }`}
+      >
+        <div className="h-16 px-5 border-b border-gray-100 flex items-center justify-between shrink-0">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            {currentUserName} <span className="text-xs">▼</span>
+          </h2>
+          <Send className="w-6 h-6 stroke-[1.5]" />
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {conversations.map((conversation) => (
-            <button
-              key={conversation.id}
-              onClick={() => setSelectedConversation(conversation)}
-              className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors ${
-                selectedConversation?.id === conversation.id ? "bg-gray-50" : ""
-              }`}
-            >
-              <div className="relative">
-                <ImageWithFallback
-                  src={conversation.userAvatar}
-                  alt={conversation.username}
-                  className="w-14 h-14 rounded-full object-cover"
-                />
-                {conversation.unread && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white text-xs">
-                    1
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 text-left min-w-0">
-                <div className="font-semibold text-sm">
-                  {conversation.username}
-                </div>
-                <div
-                  className={`text-sm truncate ${
-                    conversation.unread
-                      ? "text-black font-semibold"
-                      : "text-gray-500"
+          {loadingFriends ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p className="font-semibold">Chưa có tin nhắn</p>
+              <p className="text-sm mt-1">Gửi tin nhắn cho bạn bè ngay!</p>
+            </div>
+          ) : (
+            <div className="py-2">
+              {conversations.map((conversation) => (
+                <button
+                  key={conversation.id}
+                  onClick={() => setSelectedConversation(conversation)}
+                  className={`w-full flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors ${
+                    selectedConversation?.id === conversation.id
+                      ? "bg-gray-50"
+                      : ""
                   }`}
                 >
-                  {conversation.lastMessage}
-                </div>
-              </div>
+                  <div className="relative">
+                    <ImageWithFallback
+                      src={conversation.userAvatar}
+                      alt={conversation.username}
+                      className="w-14 h-14 rounded-full object-cover border border-gray-100"
+                    />
+                    {/* Online indicator mock */}
+                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                  </div>
 
-              <div className="text-xs text-gray-500">
-                {formatTime(conversation.timestamp)}
-              </div>
-            </button>
-          ))}
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="font-semibold text-sm text-gray-900">
+                      {conversation.username}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <span
+                        className={`truncate max-w-[140px] ${
+                          conversation.unread
+                            ? "font-bold text-gray-900"
+                            : "font-normal"
+                        }`}
+                      >
+                        {conversation.lastMessage}
+                      </span>
+                      <span>·</span>
+                      <span className="text-xs">
+                        {formatTime(conversation.timestamp)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {conversation.unread && (
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Chat Area */}
       {selectedConversation ? (
-        <div className="hidden lg:flex flex-1 flex-col bg-white">
-          {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-3">
-              <ImageWithFallback
-                src={selectedConversation.userAvatar}
-                alt={selectedConversation.username}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <span className="font-semibold">
-                {selectedConversation.username}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Phone className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Video className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Info className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.senderId === "me" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[60%] px-4 py-2 rounded-3xl ${
-                    message.senderId === "me"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 text-black"
-                  }`}
-                >
-                  <p className="text-sm">{message.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t">
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
-                placeholder="Nhắn tin..."
-                className="flex-1 px-4 py-2 border rounded-full outline-none focus:border-gray-400"
-              />
-              {messageText.trim() && (
-                <button
-                  type="submit"
-                  className="text-blue-500 font-semibold hover:text-blue-700"
-                >
-                  Gửi
-                </button>
-              )}
-            </div>
-          </form>
+        <div className="flex-1 flex flex-col w-full h-full relative z-10 bg-white overflow-hidden">
+          <MessagingPanel
+            currentUserId={currentUserId}
+            recipientUserId={selectedConversation.id}
+            recipientName={selectedConversation.username}
+            recipientAvatar={selectedConversation.userAvatar}
+            onBack={() => setSelectedConversation(null)}
+          />
         </div>
       ) : (
-        <div className="hidden lg:flex flex-1 items-center justify-center bg-white">
-          <div className="text-center">
-            <Send className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-xl mb-2">Tin nhắn của bạn</h3>
-            <p className="text-gray-500">
-              Gửi ảnh và tin nhắn riêng tư cho bạn bè
-            </p>
+        <div className="hidden lg:flex flex-1 flex-col items-center justify-center bg-white">
+          <div className="w-24 h-24 rounded-full border-2 border-black flex items-center justify-center mb-4">
+            <Send className="w-10 h-10 text-black ml-1 mt-1" />
           </div>
+          <h3 className="text-xl font-medium mb-2">Tin nhắn của bạn</h3>
+          <p className="text-gray-500 text-sm mb-6">
+            Gửi ảnh và tin nhắn riêng tư cho bạn bè
+          </p>
+          <button className="px-5 py-2 bg-[#0095f6] text-white rounded-lg font-semibold text-sm hover:bg-[#1877f2] transition-colors">
+            Gửi tin nhắn
+          </button>
         </div>
       )}
     </div>

@@ -6,9 +6,10 @@ import {
   PlusSquare,
   User,
   LogOut,
+  Users,
 } from "lucide-react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FriendRequestNotification } from "../features/user/FriendRequestNotification";
 
 interface SidebarProps {
   activeView: "home" | "messages";
@@ -21,7 +22,6 @@ export function Sidebar({
   onNavigate,
   onCreatePost,
 }: SidebarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -45,6 +45,13 @@ export function Sidebar({
       label: "Tin nhắn",
       view: "messages" as const,
       onClick: () => onNavigate("messages"),
+    },
+    {
+      icon: Users,
+      label: "Bạn bè",
+      view: null,
+      onClick: () => navigate("/friends"),
+      badge: true, // Show notification badge
     },
     { icon: Heart, label: "Thông báo", view: null, onClick: () => {} },
     { icon: PlusSquare, label: "Tạo", view: null, onClick: onCreatePost },
@@ -77,10 +84,7 @@ export function Sidebar({
       </nav>
 
       {/* Desktop Sidebar */}
-      <aside
-        className="hidden lg:block fixed left-0 top-0 h-screen bg-white border-r z-40 transition-all duration-300"
-        style={{ width: isExpanded ? "256px" : "256px" }}
-      >
+      <aside className="hidden lg:flex fixed left-0 top-0 w-64 h-screen bg-white border-r z-40 flex-col">
         <div className="flex flex-col h-full py-8 px-3">
           {/* Logo */}
           <div className="px-3 mb-10">
@@ -93,7 +97,7 @@ export function Sidebar({
               <button
                 key={index}
                 onClick={item.onClick}
-                className={`w-full flex items-center gap-4 px-3 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-4 px-3 py-3 rounded-lg transition-colors relative ${
                   item.view === activeView ? "font-bold" : "hover:bg-gray-100"
                 }`}
               >
@@ -102,6 +106,11 @@ export function Sidebar({
                   strokeWidth={item.view === activeView ? 2.5 : 2}
                 />
                 <span>{item.label}</span>
+                {item.badge && (
+                  <div className="absolute right-3">
+                    <FriendRequestNotification />
+                  </div>
+                )}
               </button>
             ))}
           </nav>

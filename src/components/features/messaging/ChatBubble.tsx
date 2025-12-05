@@ -1,56 +1,68 @@
-import type { Message } from "../types";
+import type { Message } from "../../../types";
+import { ImageWithFallback } from "../../shared/ImageWithFallback";
 
 interface ChatBubbleProps {
   message: Message;
+  isOwn?: boolean;
+  showAvatar?: boolean;
+  recipientAvatar?: string;
 }
 
-export function ChatBubble({ message }: ChatBubbleProps) {
+export function ChatBubble({
+  message,
+  isOwn,
+  showAvatar,
+  recipientAvatar,
+}: ChatBubbleProps) {
   const formatTime = (date: Date) => {
     return new Intl.DateTimeFormat("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
-    }).format(date);
+    }).format(new Date(date));
   };
+
+  // Use props or fallback to message properties
+  const isCurrentUser = isOwn ?? message.isCurrentUser;
 
   return (
     <div
-      className={`flex ${
-        message.isCurrentUser ? "justify-end" : "justify-start"
+      className={`flex w-full mb-1 ${
+        isCurrentUser ? "justify-end" : "justify-start"
       }`}
     >
       <div
-        className={`max-w-[70%] ${
-          message.isCurrentUser ? "order-2" : "order-1"
+        className={`flex max-w-[70%] ${
+          isCurrentUser ? "flex-row-reverse" : "flex-row"
         }`}
       >
-        <div className="flex items-center gap-2 mb-1">
-          {!message.isCurrentUser && (
-            <span className="text-sm text-gray-600">{message.sender}</span>
-          )}
-          {message.isCurrentUser && (
-            <span className="text-sm text-gray-600 ml-auto">
-              {message.sender}
-            </span>
-          )}
+        {/* Avatar for recipient */}
+        {!isCurrentUser && (
+          <div className="flex-shrink-0 w-7 h-7 mr-2 flex flex-col justify-end">
+            {showAvatar ? (
+              <ImageWithFallback
+                src={recipientAvatar || ""}
+                alt={message.sender}
+                className="w-7 h-7 rounded-full object-cover border border-gray-100"
+              />
+            ) : (
+              <div className="w-7"></div>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-col">
+          <div
+            className={`px-4 py-2 text-[15px] leading-snug break-words ${
+              isCurrentUser
+                ? "bg-[#3797f0] text-white rounded-[22px]"
+                : "bg-[#efefef] text-black rounded-[22px]"
+            }`}
+          >
+            {message.content}
+          </div>
         </div>
 
-        <div
-          className={`rounded-2xl px-4 py-3 ${
-            message.isCurrentUser
-              ? "bg-blue-600 text-white rounded-tr-sm"
-              : "bg-gray-100 text-gray-900 rounded-tl-sm"
-          }`}
-        >
-          <p>{message.content}</p>
-        </div>
-
-        <div
-          className={`text-xs text-gray-500 mt-1 ${
-            message.isCurrentUser ? "text-right" : "text-left"
-          }`}
-        >
-          {formatTime(message.timestamp)}
-        </div>
+        {/* Timestamp tooltip or side display (optional, can be hidden) */}
       </div>
     </div>
   );
