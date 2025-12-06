@@ -6,35 +6,22 @@ import requestApi from "../../../helpers/api";
 import { useDispatch } from "react-redux";
 import { setLoading } from "../../../redux/globalLoadingSlice";
 import type { AppDispatch } from "../../../redux/store";
-import type { PostEntity, CategoryEntity } from "../../../types";
+import type { PostEntity } from "../../../types";
 
 const PostList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const [posts, setPosts] = useState<PostEntity[]>([]);
-  const [categories, setCategories] = useState<CategoryEntity[]>([]);
   const [numOfPage, setNumOfPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [searchString, setSearchString] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [deleteItem, setDeleteItem] = useState<string | number | null>(null);
   const [deleteType, setDeleteType] = useState<"single" | "multi">("single");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<number>(() => Date.now());
-
-  // Fetch categories on mount
-  useEffect(() => {
-    requestApi("/categories", "GET", [])
-      .then((response) => {
-        setCategories(response.data.data || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching categories:", error);
-      });
-  }, []);
 
   const handleDelete = (id: string | number) => {
     setShowModal(true);
@@ -82,9 +69,7 @@ const PostList: React.FC = () => {
 
   useEffect(() => {
     dispatch(setLoading(true));
-    const query = `?items_per_page=${itemsPerPage}&page=${currentPage}&search=${searchString}${
-      selectedCategory ? `&category=${selectedCategory}` : ""
-    }`;
+    const query = `?items_per_page=${itemsPerPage}&page=${currentPage}&search=${searchString}`;
     requestApi(`/posts${query}`, "GET", [])
       .then((response) => {
         setPosts(response.data.data);
@@ -92,14 +77,7 @@ const PostList: React.FC = () => {
         dispatch(setLoading(false));
       })
       .catch(() => dispatch(setLoading(false)));
-  }, [
-    currentPage,
-    itemsPerPage,
-    searchString,
-    selectedCategory,
-    refresh,
-    dispatch,
-  ]);
+  }, [currentPage, itemsPerPage, searchString, refresh, dispatch]);
 
   const getStatusBadge = (status: number) => {
     if (status === 1) {
@@ -134,20 +112,6 @@ const PostList: React.FC = () => {
             {row.description}
           </div>
         </div>
-      ),
-    },
-    {
-      name: "Category",
-      element: (row: PostEntity) => (
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-            row.category
-              ? "bg-blue-100 text-blue-800 border-blue-200"
-              : "bg-gray-100 text-gray-600 border-gray-200"
-          }`}
-        >
-          {row.category ? row.category.name : "No Category"}
-        </span>
       ),
     },
     {
@@ -233,20 +197,6 @@ const PostList: React.FC = () => {
 
       {/* Filters and Action Buttons */}
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        {/* Category Filter */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="h-10 px-4 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all"
-        >
-          <option value="">All Categories</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-
         {selectedRows.length > 0 && (
           <button
             className="flex items-center justify-center gap-2 w-56 h-10 rounded-lg bg-red-600 text-sm font-medium text-white shadow-sm hover:bg-red-700 hover:shadow-md transition-all"

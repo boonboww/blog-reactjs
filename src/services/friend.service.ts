@@ -131,6 +131,35 @@ class FriendService {
       this.getAuthHeaders()
     );
   }
+
+  /**
+   * Get friends by user ID with pagination and search
+   * @param userId - The ID of the user to get friends for
+   * @param query - Query parameters (page, limit, search)
+   */
+  async getFriendsByUserId(
+    userId: number,
+    query: GetFriendsDto = {}
+  ): Promise<GetFriendsResponse> {
+    const response = await axios.get<GetFriendsResponse>(
+      `${API_URL}/friend/user/${userId}`,
+      {
+        params: query,
+        ...this.getAuthHeaders(),
+      }
+    );
+    return response.data;
+  }
+  /**
+   * Get suggested friends (users not yet friends)
+   */
+  async getSuggestedFriends(): Promise<any[]> {
+    const response = await axios.get(
+      `${API_URL}/friend/suggested`,
+      this.getAuthHeaders()
+    );
+    return response.data;
+  }
 }
 
 // Export singleton instance

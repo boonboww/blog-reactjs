@@ -15,6 +15,7 @@ export interface Post {
   id: string;
   username: string;
   userAvatar: string;
+  title: string;
   imageUrl: string;
   caption: string;
   likes: number;
@@ -77,12 +78,6 @@ export interface UserEntity {
   avatar?: string;
 }
 
-// Category entity for posts
-export interface CategoryEntity {
-  id: number;
-  name: string;
-}
-
 // Post entity as returned from backend API
 export interface PostEntity {
   id: number;
@@ -93,7 +88,6 @@ export interface PostEntity {
   created_at: string;
   updated_at: string;
   user: UserEntity;
-  category: CategoryEntity | null;
 }
 
 // Filter DTO for post queries
@@ -101,7 +95,6 @@ export interface FilterPostDto {
   items_per_page?: number;
   page?: number;
   search?: string;
-  category?: number;
 }
 
 // ============================================

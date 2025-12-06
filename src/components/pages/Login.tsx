@@ -99,6 +99,11 @@ const Login: React.FC = () => {
           );
         }
 
+        // Store full user data as JSON for profile page
+        if (res.data.user) {
+          localStorage.setItem("user_data", JSON.stringify(res.data.user));
+        }
+
         // Store user role - adjust this based on your API response structure
         const userRole = res.data.user?.role || res.data.role || "user";
         console.log("Detected user role:", userRole);

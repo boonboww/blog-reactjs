@@ -9,6 +9,7 @@ import {
   Smile,
 } from "lucide-react";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";
+import { CommentModal } from "./CommentModal";
 
 interface PostCardProps {
   post: Post;
@@ -24,7 +25,7 @@ export function PostCard({
   onAddComment,
 }: PostCardProps) {
   const [commentText, setCommentText] = useState("");
-  const [showAllComments, setShowAllComments] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,17 +36,20 @@ export function PostCard({
   };
 
   const formatTimeAgo = (date: Date) => {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    const now = new Date();
+    // Add 7 hours to compensate for backend timezone offset
+    const adjustedDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    const seconds = Math.floor((now.getTime() - adjustedDate.getTime()) / 1000);
 
-    if (seconds < 60) return `${seconds} giây trước`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`;
+    if (seconds < 0) return "now";
+    if (seconds < 3600) return "now"; // Under 1 hour = show "now"
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ trước`;
     return `${Math.floor(seconds / 86400)} ngày trước`;
   };
 
   return (
     <article className="bg-white border rounded-lg overflow-hidden">
-      {/* Header */}
+      {/* Header - Username + Time */}
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-3">
           <ImageWithFallback
@@ -53,12 +57,25 @@ export function PostCard({
             alt={post.username}
             className="w-8 h-8 rounded-full object-cover"
           />
-          <span className="font-semibold text-sm">{post.username}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm">{post.username}</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-500 text-sm">
+              {formatTimeAgo(post.timestamp)}
+            </span>
+          </div>
         </div>
         <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <MoreHorizontal className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Title */}
+      {post.title && (
+        <div className="px-3 pb-2 text-left">
+          <h3 className="text-sm font-medium">{post.title}</h3>
+        </div>
+      )}
 
       {/* Image */}
       <div className="aspect-square bg-gray-100">
@@ -83,7 +100,10 @@ export function PostCard({
                 }`}
               />
             </button>
-            <button className="hover:opacity-50 transition-opacity">
+            <button
+              onClick={() => setShowCommentModal(true)}
+              className="hover:opacity-50 transition-opacity"
+            >
               <MessageCircle className="w-6 h-6" />
             </button>
             <button className="hover:opacity-50 transition-opacity">
@@ -100,50 +120,34 @@ export function PostCard({
           </button>
         </div>
 
-        {/* Likes */}
-        <div className="mb-2">
+        {/* Likes - Left aligned */}
+        <div className="mb-2 text-left">
           <span className="font-semibold text-sm">
             {post.likes.toLocaleString()} lượt thích
           </span>
         </div>
 
-        {/* Caption */}
-        <div className="mb-2">
-          <span className="font-semibold text-sm mr-2">{post.username}</span>
+        {/* Caption - Left aligned */}
+        <div className="mb-2 text-left">
           <span className="text-sm">{post.caption}</span>
         </div>
 
-        {/* Comments */}
-        {post.comments.length > 0 && (
-          <div className="mb-2">
-            {!showAllComments && post.comments.length > 2 && (
-              <button
-                onClick={() => setShowAllComments(true)}
-                className="text-gray-500 text-sm mb-2"
-              >
-                Xem tất cả {post.comments.length} bình luận
-              </button>
-            )}
-            <div className="space-y-1">
-              {(showAllComments
-                ? post.comments
-                : post.comments.slice(0, 2)
-              ).map((comment) => (
-                <div key={comment.id}>
-                  <span className="font-semibold text-sm mr-2">
-                    {comment.username}
-                  </span>
-                  <span className="text-sm">{comment.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Comments Count - Click to open modal */}
+        {post.comments.length > 0 ? (
+          <button
+            onClick={() => setShowCommentModal(true)}
+            className="text-gray-500 text-sm mb-2 hover:text-gray-700"
+          >
+            Xem tất cả {post.comments.length} bình luận
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowCommentModal(true)}
+            className="text-gray-500 text-sm mb-2 hover:text-gray-700"
+          >
+            Thêm bình luận đầu tiên...
+          </button>
         )}
-
-        {/* Timestamp */}
-        <div className="text-gray-500 text-xs mb-3">
-          {formatTimeAgo(post.timestamp)}
-        </div>
 
         {/* Add Comment */}
         <form
@@ -170,6 +174,16 @@ export function PostCard({
           )}
         </form>
       </div>
+
+      {/* Comment Modal */}
+      {showCommentModal && (
+        <CommentModal
+          post={post}
+          onClose={() => setShowCommentModal(false)}
+          onAddComment={onAddComment}
+          onLike={onLike}
+        />
+      )}
     </article>
   );
 }

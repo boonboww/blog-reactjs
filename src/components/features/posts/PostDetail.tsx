@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { setLoading } from "../../../redux/globalLoadingSlice";
 import type { AppDispatch } from "../../../redux/store";
 import type { PostEntity } from "../../../types";
-import { ArrowLeft, User, Calendar, Tag, FileText } from "lucide-react";
+import { ArrowLeft, User, Calendar, FileText } from "lucide-react";
 
 const PostDetail: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -162,25 +162,6 @@ const PostDetail: React.FC = () => {
                       {post.user.email}
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Category */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Tag className="w-5 h-5 text-gray-400" />
-                  <h3 className="font-semibold text-gray-900">Category</h3>
-                </div>
-                <div className="pl-7">
-                  <span
-                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium border ${
-                      post.category
-                        ? "bg-blue-100 text-blue-800 border-blue-200"
-                        : "bg-gray-100 text-gray-600 border-gray-200"
-                    }`}
-                  >
-                    {post.category ? post.category.name : "No Category"}
-                  </span>
                 </div>
               </div>
 

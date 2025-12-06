@@ -44,7 +44,7 @@ export function Sidebar({
       icon: MessageCircle,
       label: "Tin nhắn",
       view: "messages" as const,
-      onClick: () => onNavigate("messages"),
+      onClick: () => navigate("/messages"),
     },
     {
       icon: Users,
@@ -55,7 +55,12 @@ export function Sidebar({
     },
     { icon: Heart, label: "Thông báo", view: null, onClick: () => {} },
     { icon: PlusSquare, label: "Tạo", view: null, onClick: onCreatePost },
-    { icon: User, label: "Trang cá nhân", view: null, onClick: () => {} },
+    {
+      icon: User,
+      label: "Trang cá nhân",
+      view: null,
+      onClick: () => navigate("/profile"),
+    },
   ];
 
   return (
@@ -88,7 +93,7 @@ export function Sidebar({
         <div className="flex flex-col h-full py-8 px-3">
           {/* Logo */}
           <div className="px-3 mb-10">
-            <h1 className="text-2xl">Instagram</h1>
+            <h1 className="text-2xl font-bold ">Gooblog</h1>
           </div>
 
           {/* Navigation */}
