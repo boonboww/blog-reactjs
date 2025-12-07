@@ -1,5 +1,5 @@
 import { useFriends } from "../../../hooks/useFriends";
-import { MessageCircle, MoreHorizontal, Search, Users } from "lucide-react";
+import { MoreHorizontal, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";

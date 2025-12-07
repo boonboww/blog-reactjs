@@ -14,13 +14,6 @@ export function ChatBubble({
   showAvatar,
   recipientAvatar,
 }: ChatBubbleProps) {
-  const formatTime = (date: Date) => {
-    return new Intl.DateTimeFormat("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(date));
-  };
-
   // Use props or fallback to message properties
   const isCurrentUser = isOwn ?? message.isCurrentUser;
 
