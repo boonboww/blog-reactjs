@@ -19,46 +19,27 @@ export function FriendsListModal({
   const [search, setSearch] = useState("");
   const [total, setTotal] = useState(0);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-  // Helper to encode URL path segments (handles spaces and special characters in filenames)
-  const encodeImageUrl = (url: string): string => {
-    try {
-      if (url.startsWith("http://") || url.startsWith("https://")) {
-        const urlObj = new URL(url);
-        const encodedPath = urlObj.pathname
-          .split("/")
-          .map((segment) => encodeURIComponent(segment))
-          .join("/");
-        return `${urlObj.origin}${encodedPath}${urlObj.search}`;
-      }
-      return url;
-    } catch {
-      return url;
-    }
-  };
-
   useEffect(() => {
+    const fetchFriends = async () => {
+      setLoading(true);
+      try {
+        const response = await friendService.getFriendsByUserId(userId, {
+          limit: 50,
+          search: search || undefined,
+        });
+        setFriends(response.data);
+        setTotal(response.total);
+      } catch (error) {
+        console.error("Failed to fetch friends:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && userId) {
       fetchFriends();
     }
   }, [isOpen, userId, search]);
-
-  const fetchFriends = async () => {
-    setLoading(true);
-    try {
-      const response = await friendService.getFriendsByUserId(userId, {
-        limit: 50,
-        search: search || undefined,
-      });
-      setFriends(response.data);
-      setTotal(response.total);
-    } catch (error) {
-      console.error("Failed to fetch friends:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -115,7 +96,7 @@ export function FriendsListModal({
                 >
                   {friend.avatar ? (
                     <img
-                      src={encodeImageUrl(`${API_URL}/${friend.avatar}`)}
+                      src={friend.avatar}
                       alt={friend.first_Name}
                       className="w-12 h-12 rounded-full object-cover"
                     />

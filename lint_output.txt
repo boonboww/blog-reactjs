@@ -1,0 +1,21 @@
+
+> blog-reactjs@0.0.0 lint
+> eslint .
+
+
+D:\learn\blog-reactjs\src\components\features\user\FriendsListModal.tsx
+  45:6  warning  React Hook useEffect has a missing dependency: 'fetchFriends'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\learn\blog-reactjs\src\components\layout\RightPanel.tsx
+  56:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\learn\blog-reactjs\src\services\friend.service.ts
+  156:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\learn\blog-reactjs\src\services\user.service.ts
+  75:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  88:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 6 problems (5 errors, 1 warning)
+

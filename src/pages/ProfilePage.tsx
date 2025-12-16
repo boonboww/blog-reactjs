@@ -94,12 +94,10 @@ export function ProfilePage() {
     ? `${currentUser.first_name || ""} ${currentUser.last_name || ""}`
     : "Tên của bạn";
 
-  // Don't encode here - ImageWithFallback handles encoding
-  const avatarUrl = currentUser?.avatar
-    ? `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/${
-        currentUser.avatar
-      }`
-    : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80";
+  // Supabase returns full URL, use directly
+  const avatarUrl =
+    currentUser?.avatar ||
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80";
 
   // DEBUG: Log avatar URL
   console.log("DEBUG Avatar:", {
@@ -128,13 +126,13 @@ export function ProfilePage() {
             <>
               {/* Profile Header */}
               <div className="mb-8">
-                <div className="flex gap-8 md:gap-20 items-start">
+                <div className="flex gap-4 sm:gap-8 md:gap-16 items-start">
                   {/* Avatar */}
                   <div className="shrink-0">
                     <ImageWithFallback
                       src={avatarUrl}
                       alt="Profile"
-                      className="w-20 h-20 md:w-36 md:h-36 rounded-full object-cover"
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-36 md:h-36 rounded-full object-cover"
                     />
                   </div>
 
@@ -149,7 +147,7 @@ export function ProfilePage() {
                       >
                         Chỉnh sửa trang cá nhân
                       </button>
-                      <button className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors hidden md:block">
+                      <button className="px-3 sm:px-4 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors hidden sm:block">
                         Xem kho lưu trữ
                       </button>
                       <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -158,7 +156,7 @@ export function ProfilePage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="flex gap-8 mb-5">
+                    <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 mb-5">
                       <div>
                         <span className="font-semibold">
                           {userPosts.length}
@@ -252,10 +250,7 @@ export function ProfilePage() {
                             className="aspect-square group cursor-pointer relative"
                           >
                             <ImageWithFallback
-                              src={`${
-                                import.meta.env.VITE_API_URL ||
-                                "http://localhost:3000"
-                              }/${post.thumbnail}`}
+                              src={post.thumbnail}
                               alt={post.title}
                               className="w-full h-full object-cover"
                             />

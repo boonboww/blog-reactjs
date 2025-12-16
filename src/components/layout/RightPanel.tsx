@@ -4,13 +4,18 @@ import { userService } from "../../services/user.service";
 import { friendService } from "../../services/friend.service";
 import type { UserEntity } from "../../types";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// Track request status for each user
+interface RequestStatus {
+  [userId: number]: "idle" | "loading" | "sent" | "error";
+}
 
 export function RightPanel() {
   const [currentUser, setCurrentUser] = useState<UserEntity | null>(null);
   const [suggestions, setSuggestions] = useState<UserEntity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [requestStatus, setRequestStatus] = useState<RequestStatus>({});
 
   useEffect(() => {
     // 1. Get Current User info
@@ -48,21 +53,80 @@ export function RightPanel() {
   }, []);
 
   const getAvatarUrl = (avatarPath?: string) => {
-    if (!avatarPath) return undefined;
-    if (avatarPath.startsWith("http")) return avatarPath;
-    return `${API_URL}/${avatarPath}`;
+    // Supabase returns full URL, use directly
+    return avatarPath || undefined;
   };
 
-  const getFullName = (user: any) => {
-    const firstName = user.first_Name || user.first_name || "";
-    const lastName = user.last_Name || user.last_name || "";
+  const getFullName = (user: UserEntity) => {
+    // Support both first_Name/last_Name and first_name/last_name formats
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userData = user as any;
+    const firstName = user.first_Name || userData.first_name || "";
+    const lastName = user.last_Name || userData.last_name || "";
     return `${firstName} ${lastName}`.trim();
   };
 
-  const getUsername = (user: any) => {
-    const firstName = user.first_Name || user.first_name || "";
-    const lastName = user.last_Name || user.last_name || "";
+  const getUsername = (user: UserEntity) => {
+    // Support both first_Name/last_Name and first_name/last_name formats
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userData = user as any;
+    const firstName = user.first_Name || userData.first_name || "";
+    const lastName = user.last_Name || userData.last_name || "";
     return `${firstName}_${lastName}`.toLowerCase();
+  };
+
+  // Handle sending friend request
+  const handleSendFriendRequest = async (userId: number) => {
+    // Set loading state
+    setRequestStatus((prev) => ({ ...prev, [userId]: "loading" }));
+
+    try {
+      await friendService.sendFriendRequest(userId);
+      // Update status to sent
+      setRequestStatus((prev) => ({ ...prev, [userId]: "sent" }));
+      toast.success("Đã gửi lời mời kết bạn!", { position: "top-center" });
+    } catch (error: unknown) {
+      console.error("Failed to send friend request:", error);
+      setRequestStatus((prev) => ({ ...prev, [userId]: "error" }));
+
+      // Show error message
+      const err = error as { response?: { data?: { message?: string } } };
+      const message =
+        err.response?.data?.message || "Không thể gửi lời mời kết bạn";
+      toast.error(message, { position: "top-center" });
+    }
+  };
+
+  // Get button text and style based on request status
+  const getButtonContent = (userId: number) => {
+    const status = requestStatus[userId] || "idle";
+
+    switch (status) {
+      case "loading":
+        return {
+          text: "Đang gửi...",
+          disabled: true,
+          className: "text-gray-400 text-xs font-semibold cursor-not-allowed",
+        };
+      case "sent":
+        return {
+          text: "Đã gửi",
+          disabled: true,
+          className: "text-gray-500 text-xs font-semibold cursor-default",
+        };
+      case "error":
+        return {
+          text: "Thử lại",
+          disabled: false,
+          className: "text-red-500 text-xs font-semibold hover:text-red-700",
+        };
+      default:
+        return {
+          text: "Kết bạn",
+          disabled: false,
+          className: "text-blue-500 text-xs font-semibold hover:text-blue-700",
+        };
+    }
   };
 
   if (!currentUser) return null; // Or skeleton
@@ -134,8 +198,12 @@ export function RightPanel() {
                     <div className="text-gray-500 text-xs">Gợi ý cho bạn</div>
                   </div>
                 </Link>
-                <button className="text-blue-500 text-xs font-semibold hover:text-blue-700">
-                  Theo dõi
+                <button
+                  onClick={() => handleSendFriendRequest(user.id)}
+                  disabled={getButtonContent(user.id).disabled}
+                  className={getButtonContent(user.id).className}
+                >
+                  {getButtonContent(user.id).text}
                 </button>
               </div>
             ))}

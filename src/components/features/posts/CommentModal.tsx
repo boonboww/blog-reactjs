@@ -64,7 +64,7 @@ export function CommentModal({
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-5xl h-[90vh] max-h-[600px] flex rounded-lg overflow-hidden shadow-2xl">
+      <div className="relative bg-white w-full max-w-5xl h-[90vh] md:h-[80vh] max-h-[600px] flex flex-col md:flex-row rounded-lg overflow-hidden shadow-2xl mx-4">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -73,8 +73,8 @@ export function CommentModal({
           <X className="w-6 h-6" />
         </button>
 
-        {/* Left Side - Image */}
-        <div className="w-[55%] bg-black flex items-center justify-center">
+        {/* Image Section - Full width on mobile, 55% on desktop */}
+        <div className="w-full md:w-[55%] h-[40%] md:h-full bg-black flex items-center justify-center shrink-0">
           <ImageWithFallback
             src={post.imageUrl}
             alt="Post"
@@ -82,8 +82,8 @@ export function CommentModal({
           />
         </div>
 
-        {/* Right Side - Comments */}
-        <div className="w-[45%] flex flex-col bg-white">
+        {/* Comments Section */}
+        <div className="w-full md:w-[45%] flex-1 flex flex-col bg-white min-h-0">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-3">

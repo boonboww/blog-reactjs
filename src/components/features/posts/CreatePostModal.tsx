@@ -88,7 +88,7 @@ export function CreatePostModal({ onClose, onSuccess }: CreatePostModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl"
+        className="bg-white rounded-xl w-full max-w-lg mx-2 sm:mx-0 overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -104,7 +104,7 @@ export function CreatePostModal({ onClose, onSuccess }: CreatePostModalProps) {
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
           {/* Image Upload Area */}
           <div
             className={`relative border-2 border-dashed rounded-xl transition-colors cursor-pointer ${

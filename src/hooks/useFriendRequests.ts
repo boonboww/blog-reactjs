@@ -71,6 +71,7 @@ export function useFriendRequests() {
           createdAt: new Date(),
         };
         setPendingRequests((prev) => [newRequest, ...prev]);
+        // Note: Toast notification is handled by useNotifications hook globally
       }
     );
 

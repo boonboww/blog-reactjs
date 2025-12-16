@@ -30,7 +30,7 @@ export function ChatBubble({
       >
         {/* Avatar for recipient */}
         {!isCurrentUser && (
-          <div className="flex-shrink-0 w-7 h-7 mr-2 flex flex-col justify-end">
+          <div className="shrink-0 w-7 h-7 mr-2 flex flex-col justify-end">
             {showAvatar ? (
               <ImageWithFallback
                 src={recipientAvatar || ""}
@@ -45,7 +45,7 @@ export function ChatBubble({
 
         <div className="flex flex-col">
           <div
-            className={`px-4 py-2 text-[15px] leading-snug break-words ${
+            className={`px-4 py-2 text-[15px] leading-snug wrap-break-word ${
               isCurrentUser
                 ? "bg-[#3797f0] text-white rounded-[22px]"
                 : "bg-[#efefef] text-black rounded-[22px]"

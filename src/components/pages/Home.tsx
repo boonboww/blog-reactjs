@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "../layout/Sidebar";
+import { MobileHeader } from "../layout/MobileHeader";
 import { Feed } from "../layout/Feed";
 import { RightPanel } from "../layout/RightPanel";
 import { DirectMessages } from "../features/messaging/DirectMessages";
 import { CreatePostModal } from "../features/posts/CreatePostModal";
 import { useSocket } from "../../hooks/useSocket";
+import { useNotifications } from "../../hooks/useNotifications";
 import {
   getPosts,
   likePost,
@@ -18,8 +20,6 @@ import {
 } from "../../services/post.service";
 import type { Post, Story, Comment } from "../../types";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
 export default function Home() {
   const [activeView, setActiveView] = useState<"home" | "messages">("home");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -29,6 +29,9 @@ export default function Home() {
   // 🔌 Connect socket for real-time features (friend notifications, etc.)
   const userId = localStorage.getItem("user_id") || localStorage.getItem("id");
   useSocket(userId);
+
+  // 🔔 Enable global real-time notifications (chat messages, friend requests)
+  useNotifications(userId);
 
   // Fetch posts with likes and comments from API
   const fetchPostsWithData = async () => {
@@ -72,10 +75,10 @@ export default function Home() {
             username: `${apiPost.user?.first_Name || ""}_${
               apiPost.user?.last_Name || ""
             }`.toLowerCase(),
-            userAvatar: apiPost.user?.avatar
-              ? `${API_URL}/${apiPost.user.avatar}`
-              : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80",
-            imageUrl: `${API_URL}/${apiPost.thumbnail}`,
+            userAvatar:
+              apiPost.user?.avatar ||
+              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80",
+            imageUrl: apiPost.thumbnail,
             caption: apiPost.description,
             title: apiPost.title,
             likes: likesCount,
@@ -261,10 +264,15 @@ export default function Home() {
       />
 
       {/* Main Content - Fixed to viewport */}
-      <div className="fixed inset-0 lg:left-64 bg-white">
+      <div className="fixed inset-0 lg:left-64 bg-white flex flex-col">
+        {/* Mobile Header - Only on mobile, only for home view */}
+        {activeView === "home" && (
+          <MobileHeader onCreatePost={() => setShowCreateModal(true)} />
+        )}
+
         {activeView === "home" ? (
-          <div className="h-full overflow-y-auto">
-            <div className="flex justify-center gap-8 pt-8 px-4 pb-20 lg:pb-8">
+          <div className="flex-1 overflow-y-auto">
+            <div className="flex justify-center gap-8 pt-4 lg:pt-8 px-4 pb-20 lg:pb-8">
               {/* Feed */}
               <div className="w-full max-w-[470px]">
                 {loading ? (

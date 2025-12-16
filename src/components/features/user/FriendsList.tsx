@@ -103,12 +103,9 @@ export function FriendsList() {
                 alt={`${friend.first_Name} ${friend.last_Name}`}
                 className="w-12 h-12 rounded-full object-cover"
               />
-              <div>
-                <h3 className="font-semibold text-sm text-gray-900">
-                  {friend.first_Name} {friend.last_Name}
-                </h3>
-                <p className="text-sm text-gray-500">{friend.email}</p>
-              </div>
+              <h3 className="font-semibold text-sm text-gray-900">
+                {friend.first_Name} {friend.last_Name}
+              </h3>
             </div>
 
             {/* Actions */}

@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { UserEntity } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -72,7 +73,7 @@ class UserService {
    * Get user by ID
    * @param userId - The ID of the user to fetch
    */
-  async getUserById(userId: number): Promise<any> {
+  async getUserById(userId: number): Promise<UserEntity> {
     const response = await axios.get(
       `${API_URL}/users/${userId}`,
       this.getAuthHeaders()
@@ -85,7 +86,7 @@ class UserService {
    */
   async getUsers(
     params: { page?: number; items_per_page?: number; search?: string } = {}
-  ): Promise<any> {
+  ): Promise<UserEntity[]> {
     const response = await axios.get(`${API_URL}/users`, {
       ...this.getAuthHeaders(),
       params,

@@ -71,18 +71,24 @@ export function Sidebar({
           {[
             navItems[0], // Home
             navItems[1], // Search
-            navItems[4], // Create
+            navItems[3], // Friends (Bạn bè)
             navItems[2], // Messages
-            navItems[5], // Profile
+            navItems[6], // Profile
           ].map((item, index) => (
             <button
               key={index}
               onClick={item.onClick}
-              className={`p-3 ${
+              className={`p-3 relative ${
                 item.view === activeView ? "text-black" : "text-gray-600"
               }`}
             >
               <item.icon className="w-6 h-6" />
+              {/* Show notification badge for Friends */}
+              {item.badge && (
+                <div className="absolute -top-1 -right-1">
+                  <FriendRequestNotification />
+                </div>
+              )}
             </button>
           ))}
         </div>

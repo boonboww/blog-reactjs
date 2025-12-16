@@ -3,6 +3,7 @@ import { useSocket } from "../../../hooks/useSocket";
 import { usePrivateChat } from "../../../hooks/usePrivateChat";
 import { useFriendshipStatus } from "../../../hooks/useFriendshipStatus";
 import { ChatBubble } from "./ChatBubble";
+import { EmojiButton } from "./EmojiPicker";
 import {
   Phone,
   Video,
@@ -10,11 +11,11 @@ import {
   ChevronLeft,
   Image as ImageIcon,
   Heart,
-  Smile,
   UserPlus,
 } from "lucide-react";
 import { friendService } from "../../../services/friend.service";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";
+import { toast } from "react-toastify";
 
 interface MessagingPanelProps {
   currentUserId: string;
@@ -33,8 +34,10 @@ export function MessagingPanel({
 }: MessagingPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [sendingRequest, setSendingRequest] = useState(false);
   const [messageText, setMessageText] = useState("");
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
 
   // Connect to socket
   const { isConnected } = useSocket(currentUserId);
@@ -67,6 +70,45 @@ export function MessagingPanel({
     sendMessage(messageText.trim());
     setMessageText("");
     inputRef.current?.focus();
+  };
+
+  // Handle emoji selection
+  const handleEmojiSelect = (emoji: string) => {
+    setMessageText((prev) => prev + emoji);
+    inputRef.current?.focus();
+  };
+
+  // Handle image selection - support multiple images
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newImages: File[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`"${file.name}" quá lớn. Vui lòng chọn ảnh nhỏ hơn 5MB`, {
+            position: "top-center",
+          });
+          continue;
+        }
+        newImages.push(file);
+      }
+      setSelectedImages((prev) => [...prev, ...newImages]);
+    }
+    // Reset input để có thể chọn lại cùng file
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Remove selected image
+  const handleRemoveImage = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle sending heart
+  const handleSendHeart = () => {
+    sendMessage("❤️");
   };
 
   const handleSendFriendRequest = async () => {
@@ -221,12 +263,33 @@ export function MessagingPanel({
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 shrink-0">
-        <div className="flex items-center bg-white rounded-full border border-gray-300 px-2 py-1.5 focus-within:border-gray-400 transition-colors">
-          <button className="p-2 text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-            <Smile className="w-6 h-6 stroke-[1.5]" />
-          </button>
+      {/* Image Preview - Multiple images */}
+      {selectedImages.length > 0 && (
+        <div className="px-4 pb-2 shrink-0">
+          <div className="flex flex-wrap gap-2">
+            {selectedImages.map((image, index) => (
+              <div key={index} className="relative inline-block">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt={`Preview ${index + 1}`}
+                  className="h-20 w-20 object-cover rounded-lg"
+                />
+                <button
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-gray-800 text-white rounded-full text-xs flex items-center justify-center hover:bg-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Input Area - Extra padding on mobile for bottom nav */}
+      <div className="p-4 pb-20 lg:pb-4 shrink-0">
+        <div className="flex items-center bg-white rounded-full border border-gray-300 px-2 py-1.5">
+          <EmojiButton onEmojiSelect={handleEmojiSelect} />
           <form onSubmit={handleSubmit} className="flex-1 flex mx-2">
             <input
               ref={inputRef}
@@ -234,9 +297,9 @@ export function MessagingPanel({
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               placeholder="Nhắn tin..."
-              className="flex-1 bg-transparent border-none focus:ring-0 placeholder-gray-500 text-sm py-2"
+              className="flex-1 bg-transparent border-none outline-none focus:ring-0 placeholder-gray-500 text-sm py-2"
             />
-            {messageText.length > 0 && (
+            {(messageText.length > 0 || selectedImages.length > 0) && (
               <button
                 type="submit"
                 className="text-[#0095f6] font-semibold text-sm px-2"
@@ -245,12 +308,24 @@ export function MessagingPanel({
               </button>
             )}
           </form>
-          {messageText.length === 0 && (
+          {messageText.length === 0 && selectedImages.length === 0 && (
             <>
-              <button className="p-2 text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+              <label className="p-2 text-gray-900 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">
                 <ImageIcon className="w-6 h-6 stroke-[1.5]" />
-              </button>
-              <button className="p-2 text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => handleSendHeart()}
+                className="p-2 text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+              >
                 <Heart className="w-6 h-6 stroke-[1.5]" />
               </button>
             </>

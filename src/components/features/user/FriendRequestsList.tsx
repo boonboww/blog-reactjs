@@ -61,9 +61,6 @@ export function FriendRequestsList() {
               <h3 className="font-semibold text-sm text-gray-900">
                 {request.requester.first_Name} {request.requester.last_Name}
               </h3>
-              <p className="text-sm text-gray-500 truncate">
-                {request.requester.email}
-              </p>
               <p className="text-xs text-gray-400">
                 {new Date(request.createdAt).toLocaleDateString("vi-VN")}
               </p>

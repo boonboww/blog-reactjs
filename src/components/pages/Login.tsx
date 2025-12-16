@@ -154,8 +154,8 @@ const Login: React.FC = () => {
         </div>
 
         {/* Right Side - Login Form */}
-        <div className="flex-1 max-w-[350px]">
-          <div className="bg-white  px-10 pt-12 pb-6 mb-2.5 relative">
+        <div className="flex-1 w-full max-w-[350px]">
+          <div className="bg-white px-6 sm:px-10 pt-8 sm:pt-12 pb-6 mb-2.5 relative">
             <div className="flex justify-center mb-10">
               <h1
                 className="text-4xl font-bold tracking-tight"

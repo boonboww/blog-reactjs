@@ -28,8 +28,6 @@ export function EditProfileModal({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
   useEffect(() => {
     if (isOpen) {
       setFirstName(currentUser.first_name || "");
@@ -107,23 +105,9 @@ export function EditProfileModal({
     }
   };
 
-  // Encode URL for img src - handle spaces in filename
-  const encodeUrl = (url: string) => {
-    try {
-      const urlObj = new URL(url);
-      const encodedPath = urlObj.pathname
-        .split("/")
-        .map((segment) => encodeURIComponent(segment))
-        .join("/");
-      return `${urlObj.origin}${encodedPath}`;
-    } catch {
-      return url;
-    }
-  };
-
-  const currentAvatarUrl = currentUser.avatar
-    ? encodeUrl(`${API_URL}/${currentUser.avatar}`)
-    : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80";
+  const currentAvatarUrl =
+    currentUser.avatar ||
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80";
 
   if (!isOpen) return null;
 

@@ -6,6 +6,7 @@ import type {
   GetFriendsResponse,
   FriendRequest,
   FriendshipStatusResponse,
+  UserEntity,
 } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -153,7 +154,7 @@ class FriendService {
   /**
    * Get suggested friends (users not yet friends)
    */
-  async getSuggestedFriends(): Promise<any[]> {
+  async getSuggestedFriends(): Promise<UserEntity[]> {
     const response = await axios.get(
       `${API_URL}/friend/suggested`,
       this.getAuthHeaders()
