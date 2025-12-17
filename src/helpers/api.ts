@@ -1,8 +1,8 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse, Method } from "axios";
 
-// Base URL từ .env
-const BASE_URL = import.meta.env.VITE_API_URL;
+// Base URL từ .env (fallback về localhost khi chạy local)
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // Tạo một instance chung
 const instance = axios.create({
