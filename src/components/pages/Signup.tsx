@@ -146,7 +146,7 @@ const Signup: React.FC = () => {
                 backgroundClip: "text",
               }}
             >
-              YourBrand
+              GoFlex
             </h1>
           </div>
 
