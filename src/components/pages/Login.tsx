@@ -168,7 +168,7 @@ const Login: React.FC = () => {
                   backgroundClip: "text",
                 }}
               >
-                GoBlog
+                GoFlex
               </h1>
             </div>
 
