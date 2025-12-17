@@ -28,28 +28,11 @@ export function useNotifications(currentUserId: string | null | undefined) {
 
     console.log("🔔 Setting up global notification listeners");
 
-    // Listen for private messages (show notification if not in that chat)
+    // Listen for private messages - no toast, only sidebar badge
+    // (Badge is handled separately in chat component)
     const cleanupPrivateMsg = socketService.onPrivateMessage(
-      (data: PrivateMessageReceived) => {
-        // Only show notification if the message is from someone else
-        if (data.from !== currentUserId) {
-          // Check if user is currently viewing this chat
-          // We can check URL or use a global state, for now just show notification
-          const currentPath = window.location.pathname;
-          const isInMessagesPage = currentPath.includes("/messages");
-
-          // Show toast for new message
-          if (!isInMessagesPage) {
-            toast.info(`💬 Tin nhắn mới từ User #${data.from}`, {
-              position: "top-right",
-              autoClose: 4000,
-              onClick: () => {
-                // Navigate to messages when clicked
-                window.location.href = "/";
-              },
-            });
-          }
-        }
+      (_data: PrivateMessageReceived) => {
+        // No toast for chat messages - badge notification is enough
       }
     );
 

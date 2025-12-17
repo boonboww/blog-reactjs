@@ -5,21 +5,54 @@ import { ImageWithFallback } from "../../shared/ImageWithFallback";
 import { useFriends } from "../../../hooks/useFriends";
 import { MessagingPanel } from "./MessagingPanel";
 import requestApi from "../../../helpers/api";
+import { chatService } from "../../../services/chat.service";
+
+interface ConversationFromAPI {
+  userId: number;
+  userName: string;
+  userAvatar: string | null;
+  lastMessage: string;
+  lastMessageTime: Date;
+  unreadCount: number;
+}
 
 export function DirectMessages() {
   // Load real friends
   const { friends, loading: loadingFriends } = useFriends();
   const [currentUser, setCurrentUser] = useState<UserEntity | null>(null);
+  const [conversationsFromAPI, setConversationsFromAPI] = useState<
+    ConversationFromAPI[]
+  >([]);
 
-  // Convert friends to conversations format
-  const conversations: Conversation[] = friends.map((friend) => ({
-    id: friend.id.toString(),
-    username: `${friend.first_Name} ${friend.last_Name}`,
-    userAvatar: friend.avatar || "",
-    lastMessage: "Bắt đầu cuộc trò chuyện",
-    timestamp: new Date(friend.friendsSince),
-    unread: false,
-  }));
+  // Fetch conversations with last messages from API
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const data = await chatService.getConversations();
+        setConversationsFromAPI(data);
+      } catch (error) {
+        console.error("Failed to fetch conversations:", error);
+      }
+    };
+    fetchConversations();
+  }, []);
+
+  // Convert friends to conversations format, use lastMessage from API if available
+  const conversations: Conversation[] = friends.map((friend) => {
+    const apiConversation = conversationsFromAPI.find(
+      (c) => c.userId === friend.id
+    );
+    return {
+      id: friend.id.toString(),
+      username: `${friend.first_Name} ${friend.last_Name}`,
+      userAvatar: friend.avatar || "",
+      lastMessage: apiConversation?.lastMessage || "Bắt đầu cuộc trò chuyện",
+      timestamp: apiConversation?.lastMessageTime
+        ? new Date(apiConversation.lastMessageTime)
+        : new Date(friend.friendsSince),
+      unread: (apiConversation?.unreadCount || 0) > 0,
+    };
+  });
 
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);

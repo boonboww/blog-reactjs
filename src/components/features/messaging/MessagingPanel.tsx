@@ -63,13 +63,36 @@ export function MessagingPanel({
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!messageText.trim()) return;
 
-    sendMessage(messageText.trim());
-    setMessageText("");
-    inputRef.current?.focus();
+    const hasText = messageText.trim().length > 0;
+    const hasImages = selectedImages.length > 0;
+
+    if (!hasText && !hasImages) return;
+
+    try {
+      // Upload images first if any
+      let imageUrl: string | undefined;
+      if (hasImages) {
+        // Upload first image (can extend to multiple later)
+        const { chatService } = await import("../../../services/chat.service");
+        imageUrl = await chatService.uploadChatImage(selectedImages[0]);
+      }
+
+      // Send message with text and/or image
+      sendMessage(messageText.trim(), imageUrl);
+
+      // Clear inputs
+      setMessageText("");
+      setSelectedImages([]);
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast.error("Không thể gửi tin nhắn. Vui lòng thử lại.", {
+        position: "top-center",
+      });
+    }
   };
 
   // Handle emoji selection

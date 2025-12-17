@@ -18,7 +18,7 @@ import {
   type Post as APIPost,
   type Comment as APIComment,
 } from "../../services/post.service";
-import type { Post, Story, Comment } from "../../types";
+import type { Post, Comment } from "../../types";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<"home" | "messages">("home");
@@ -100,44 +100,6 @@ export default function Home() {
   useEffect(() => {
     fetchPostsWithData();
   }, []);
-
-  const [stories] = useState<Story[]>([
-    {
-      id: "1",
-      username: "Câu chuyện của bạn",
-      userAvatar:
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80",
-      isViewed: false,
-    },
-    {
-      id: "2",
-      username: "nguyen_vana",
-      userAvatar:
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80",
-      isViewed: false,
-    },
-    {
-      id: "3",
-      username: "food_lover",
-      userAvatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80",
-      isViewed: true,
-    },
-    {
-      id: "4",
-      username: "techie_dev",
-      userAvatar:
-        "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&q=80",
-      isViewed: false,
-    },
-    {
-      id: "5",
-      username: "travel_explorer",
-      userAvatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80",
-      isViewed: true,
-    },
-  ]);
 
   const handleLikePost = async (postId: string) => {
     const post = posts.find((p) => p.id === postId);
@@ -282,7 +244,6 @@ export default function Home() {
                 ) : (
                   <Feed
                     posts={posts}
-                    stories={stories}
                     onLikePost={handleLikePost}
                     onSavePost={handleSavePost}
                     onAddComment={handleAddComment}

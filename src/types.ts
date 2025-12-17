@@ -63,6 +63,7 @@ export interface Message {
   id: string;
   sender: string;
   content: string;
+  imageUrl?: string; // Support for image messages
   timestamp: Date;
   isCurrentUser: boolean;
 }

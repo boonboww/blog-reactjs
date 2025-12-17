@@ -27,12 +27,13 @@ export function usePrivateChat(
 
         console.log("✅ Chat history loaded:", history.data.length, "messages");
 
-        // Backend returns: senderId, createdAt, isFromMe (camelCase)
+        // Backend returns: senderId, createdAt, isFromMe, imageUrl (camelCase)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const loadedMessages: Message[] = history.data.map((msg: any) => ({
           id: msg.id?.toString() || `msg-${Date.now()}`,
           sender: msg.senderId?.toString() || "",
           content: msg.content || "",
+          imageUrl: msg.imageUrl || undefined,
           timestamp: msg.createdAt ? new Date(msg.createdAt) : new Date(),
           isCurrentUser: msg.isFromMe || false,
         }));
@@ -52,17 +53,18 @@ export function usePrivateChat(
     loadHistory();
   }, [currentUserId, recipientUserId]);
 
-  // Send message
+  // Send message with optional image
   const sendMessage = useCallback(
-    (content: string) => {
+    (content: string, imageUrl?: string) => {
       if (!currentUserId || !recipientUserId) return;
 
-      socketService.sendPrivateMessage(recipientUserId, content);
+      socketService.sendPrivateMessage(recipientUserId, content, imageUrl);
 
       const newMessage: Message = {
         id: `temp-${Date.now()}`,
         sender: currentUserId,
         content,
+        imageUrl,
         timestamp: new Date(),
         isCurrentUser: true,
       };
@@ -83,6 +85,7 @@ export function usePrivateChat(
             id: data.id?.toString() || `${Date.now()}`,
             sender: data.from,
             content: data.message,
+            imageUrl: (data as { imageUrl?: string }).imageUrl,
             timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
             isCurrentUser: false,
           };

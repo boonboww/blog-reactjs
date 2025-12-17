@@ -20,6 +20,7 @@
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
     "env-cmd": "^11.0.0",
+    "favico.js": "^0.3.10",
     "input-otp": "^1.4.2",
     "lil-gui": "^0.21.0",
     "lucide-react": "^0.487.0",

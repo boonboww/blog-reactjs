@@ -8,6 +8,7 @@ interface ChatMessage {
   senderName: string;
   senderAvatar: string | null;
   content: string;
+  imageUrl?: string; // Add support for image messages
   isRead: boolean;
   isFromMe: boolean;
   createdAt: Date; // Backend uses camelCase
@@ -30,6 +31,10 @@ interface Conversation {
   unreadCount: number;
 }
 
+interface UploadImageResponse {
+  imageUrl: string;
+}
+
 /**
  * ChatService - Service for chat-related API calls
  * Handles message history, conversations, and read status
@@ -42,6 +47,29 @@ class ChatService {
         Authorization: `Bearer ${token}`,
       },
     };
+  }
+
+  /**
+   * Upload an image for chat
+   * @param file - The image file to upload
+   * @returns The URL of the uploaded image
+   */
+  async uploadChatImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const token = localStorage.getItem("access_token");
+    const response = await axios.post<UploadImageResponse>(
+      `${API_URL}/chat/upload-image`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data.imageUrl;
   }
 
   /**

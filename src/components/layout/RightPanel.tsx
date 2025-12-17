@@ -215,36 +215,6 @@ export function RightPanel() {
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <div className="mt-8 text-xs text-gray-400 space-y-2">
-        <div className="flex flex-wrap gap-x-2 gap-y-1">
-          <a href="#" className="hover:underline">
-            Giới thiệu
-          </a>
-          <span>·</span>
-          <a href="#" className="hover:underline">
-            Trợ giúp
-          </a>
-          <span>·</span>
-          <a href="#" className="hover:underline">
-            Báo chí
-          </a>
-          <span>·</span>
-          <a href="#" className="hover:underline">
-            API
-          </a>
-          <span>·</span>
-          <a href="#" className="hover:underline">
-            Việc làm
-          </a>
-          <span>·</span>
-          <a href="#" className="hover:underline">
-            Quyền riêng tư
-          </a>
-        </div>
-        <div>© 2024 INSTAGRAM CLONE</div>
-      </div>
     </div>
   );
 }

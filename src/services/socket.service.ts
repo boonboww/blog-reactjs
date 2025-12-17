@@ -104,8 +104,13 @@ class SocketService {
    * Send a private message to another user
    * @param toUserId - Recipient user ID
    * @param message - Message content
+   * @param imageUrl - Optional image URL
    */
-  sendPrivateMessage(toUserId: string, message: string): void {
+  sendPrivateMessage(
+    toUserId: string,
+    message: string,
+    imageUrl?: string
+  ): void {
     if (!this.socket) {
       console.error("Socket not connected");
       return;
@@ -117,16 +122,26 @@ class SocketService {
       return;
     }
 
-    const payload = {
+    const payload: {
+      fromUserId: string;
+      toUserId: string;
+      message: string;
+      imageUrl?: string;
+    } = {
       fromUserId,
       toUserId,
       message,
     };
 
+    if (imageUrl) {
+      payload.imageUrl = imageUrl;
+    }
+
     this.socket.emit("privateMessage", payload);
     console.log(
       `📤 Private message sent from ${fromUserId} to ${toUserId}:`,
-      message
+      message,
+      imageUrl ? `with image: ${imageUrl}` : ""
     );
   }
 

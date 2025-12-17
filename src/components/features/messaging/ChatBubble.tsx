@@ -16,6 +16,8 @@ export function ChatBubble({
 }: ChatBubbleProps) {
   // Use props or fallback to message properties
   const isCurrentUser = isOwn ?? message.isCurrentUser;
+  const hasImage = !!message.imageUrl;
+  const hasText = !!message.content;
 
   return (
     <div
@@ -43,16 +45,35 @@ export function ChatBubble({
           </div>
         )}
 
-        <div className="flex flex-col">
-          <div
-            className={`px-4 py-2 text-[15px] leading-snug wrap-break-word ${
-              isCurrentUser
-                ? "bg-[#3797f0] text-white rounded-[22px]"
-                : "bg-[#efefef] text-black rounded-[22px]"
-            }`}
-          >
-            {message.content}
-          </div>
+        <div className="flex flex-col gap-1">
+          {/* Image message */}
+          {hasImage && (
+            <div
+              className={`overflow-hidden rounded-2xl ${
+                isCurrentUser ? "rounded-br-sm" : "rounded-bl-sm"
+              }`}
+            >
+              <img
+                src={message.imageUrl}
+                alt="Chat image"
+                className="max-w-full max-h-64 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => window.open(message.imageUrl, "_blank")}
+              />
+            </div>
+          )}
+
+          {/* Text message */}
+          {hasText && (
+            <div
+              className={`px-4 py-2 text-[15px] leading-snug wrap-break-word ${
+                isCurrentUser
+                  ? "bg-[#3797f0] text-white rounded-[22px]"
+                  : "bg-[#efefef] text-black rounded-[22px]"
+              }`}
+            >
+              {message.content}
+            </div>
+          )}
         </div>
 
         {/* Timestamp tooltip or side display (optional, can be hidden) */}

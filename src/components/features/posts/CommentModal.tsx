@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import type { Post } from "../../../types";
-import { X, Heart, MoreHorizontal, Smile } from "lucide-react";
+import { X, Heart } from "lucide-react";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";
+import { EmojiButton } from "../messaging/EmojiPicker";
 
 interface CommentModalProps {
   post: Post;
@@ -19,6 +20,12 @@ export function CommentModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const commentsEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle emoji selection
+  const handleEmojiSelect = (emoji: string) => {
+    setCommentText((prev) => prev + emoji);
+    inputRef.current?.focus();
+  };
 
   useEffect(() => {
     // Focus input when modal opens
@@ -68,7 +75,7 @@ export function CommentModal({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-white hover:opacity-70 transition-opacity"
+          className="absolute top-4 right-4 z-10 text-black hover:opacity-70 transition-opacity"
         >
           <X className="w-6 h-6" />
         </button>
@@ -94,9 +101,6 @@ export function CommentModal({
               />
               <span className="font-semibold text-sm">{post.username}</span>
             </div>
-            <button className="hover:opacity-50 transition-opacity">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
           </div>
 
           {/* Comments Section */}
@@ -203,12 +207,7 @@ export function CommentModal({
               onSubmit={handleSubmitComment}
               className="flex items-center gap-3 pt-3 border-t"
             >
-              <button
-                type="button"
-                className="hover:opacity-50 transition-opacity"
-              >
-                <Smile className="w-6 h-6" />
-              </button>
+              <EmojiButton onEmojiSelect={handleEmojiSelect} />
               <input
                 ref={inputRef}
                 type="text"

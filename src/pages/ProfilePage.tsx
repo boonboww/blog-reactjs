@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Settings,
   Grid,
   Bookmark,
   UserSquare2,
@@ -146,12 +145,6 @@ export function ProfilePage() {
                         className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors"
                       >
                         Chỉnh sửa trang cá nhân
-                      </button>
-                      <button className="px-3 sm:px-4 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-sm transition-colors hidden sm:block">
-                        Xem kho lưu trữ
-                      </button>
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <Settings className="w-6 h-6" />
                       </button>
                     </div>
 

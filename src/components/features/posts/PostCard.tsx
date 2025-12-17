@@ -1,15 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Post } from "../../../types";
-import {
-  Heart,
-  MessageCircle,
-  Send,
-  Bookmark,
-  MoreHorizontal,
-  Smile,
-} from "lucide-react";
+import { Heart, MessageCircle, Bookmark, MoreHorizontal } from "lucide-react";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";
 import { CommentModal } from "./CommentModal";
+import { EmojiButton } from "../messaging/EmojiPicker";
 
 interface PostCardProps {
   post: Post;
@@ -26,6 +20,13 @@ export function PostCard({
 }: PostCardProps) {
   const [commentText, setCommentText] = useState("");
   const [showCommentModal, setShowCommentModal] = useState(false);
+  const commentInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle emoji selection
+  const handleEmojiSelect = (emoji: string) => {
+    setCommentText((prev) => prev + emoji);
+    commentInputRef.current?.focus();
+  };
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,9 +107,6 @@ export function PostCard({
             >
               <MessageCircle className="w-6 h-6" />
             </button>
-            <button className="hover:opacity-50 transition-opacity">
-              <Send className="w-6 h-6" />
-            </button>
           </div>
           <button
             onClick={() => onSave(post.id)}
@@ -154,10 +152,9 @@ export function PostCard({
           onSubmit={handleSubmitComment}
           className="flex items-center gap-2 pt-3 border-t"
         >
-          <button type="button" className="hover:opacity-50 transition-opacity">
-            <Smile className="w-6 h-6" />
-          </button>
+          <EmojiButton onEmojiSelect={handleEmojiSelect} />
           <input
+            ref={commentInputRef}
             type="text"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
